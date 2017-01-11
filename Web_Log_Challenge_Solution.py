@@ -2,9 +2,11 @@
 # coding: utf-8
 
 # In[78]:
+#Note: this file is converted from an ipynb notebook
 
 # As written in instructions all libraries are allowed except SparkSQL therefore I will be using PySpark and Pandas for my
 # data wrangling.
+
 import pandas as pd
 import re
 import time
