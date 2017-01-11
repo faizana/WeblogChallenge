@@ -91,8 +91,7 @@ avg
 # In[124]:
 
 #Calculating overall average session time (Comes out to be 1481 seconds ~ 25 mins)
-overall_average_session_time = avg.groupby('visitor_ip')\
-													.agg({'average_time_per_session_per_user' : np.mean})['average_time_per_session_per_user'].mean()
+overall_average_session_time = avg.groupby('visitor_ip').agg({'average_time_per_session_per_user' : np.mean})['average_time_per_session_per_user'].mean()
 
 
 # In[125]:
@@ -109,8 +108,8 @@ most_engaged_users = copy_df.reset_index().sort('average_time_per_session_per_us
 #                            2. Perform a count and again groupby to get count of unique urls visited per session
 
 unique_urls_per_session = logs_pd_sorted_cleaned.groupby(['visitor_ip','session_number','destination_ip']) \
-													.count().reset_index().groupby(['visitor_ip','session_number']) \
-													.count('destination_ip').reset_index()
+								.count().reset_index().groupby(['visitor_ip','session_number']) \
+							        .count('destination_ip').reset_index()
 #Renaming and dropping extra columns
 unique_urls_per_session.columns = ['visitor_ip','session_number','unique_url','timestamp']
 unique_urls_per_session = unique_urls_per_session.drop('timestamp',axis=1)
