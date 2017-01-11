@@ -62,8 +62,7 @@ logs_pd_sorted_cleaned.sort(columns = ['visitor_ip'],axis = 0,inplace = True)
 
 #Converting date string to unix timestamp for convenience in sessionizing
 
-logs_pd_sorted_cleaned['timestamp'] = logs_pd_sorted_cleaned.timestamp \
-													.map(lambda x: time.mktime(datetime.datetime.strptime(x, "%Y-%m-%d %H:%M:%S").timetuple()))
+logs_pd_sorted_cleaned['timestamp'] = logs_pd_sorted_cleaned.timestamp.map(lambda x: time.mktime(datetime.datetime.strptime(x, "%Y-%m-%d %H:%M:%S").timetuple()))
 
 logs_pd_sorted_cleaned
 
