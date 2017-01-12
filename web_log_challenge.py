@@ -10,6 +10,11 @@ import re
 import time
 import datetime
 import numpy as np
+from pyspark import SparkContext
+from pyspark.sql import HiveContext
+
+sc = SparkContext()
+hiveContext = HiveContext(sc)
 
 
 # In[3]:
@@ -53,7 +58,7 @@ def filter_504_and_cast_to_unix_ts(df):
     logs_pd_sorted_cleaned.sort(columns = ['visitor_ip'],axis = 0,inplace = True)
 
     #Converting date string to unix timestamp for convenience in sessionizing
-    logs_pd_sorted_cleaned['timestamp'] = logs_pd_sorted_cleaned.timestamp.map                            (lambda x: time.mktime(datetime.datetime.strptime(x, "%Y-%m-%d %H:%M:%S").timetuple()))
+    logs_pd_sorted_cleaned['timestamp'] = logs_pd_sorted_cleaned.timestamp.map(lambda x: time.mktime(datetime.datetime.strptime(x, "%Y-%m-%d %H:%M:%S").timetuple()))
     return logs_pd_sorted_cleaned
 
 
@@ -65,7 +70,7 @@ def generate_sessions_sequence(df):
 
     #Creating session numbers for each individual user based on a session length of 15 min= 900seconds on basis on timestamp
 
-    df['session_number'] = logs_pd_sorted_cleaned_g['timestamp']                                            .apply(lambda s: (s - s.shift(1) > 900)                                            .fillna(0).cumsum(skipna=False))
+    df['session_number'] = logs_pd_sorted_cleaned_g['timestamp'].apply(lambda s: (s - s.shift(1) > 900).fillna(0).cumsum(skipna=False))
     return df
 
 
@@ -73,12 +78,13 @@ def generate_sessions_sequence(df):
 
 def get_overall_average_session_time(df):
     
-    avg = df.groupby(['visitor_ip','session_number'])['timestamp']                                    .apply(lambda x: max(x)-min(x)).reset_index()
+    avg = df.groupby(['visitor_ip','session_number'])['timestamp'].apply(lambda x: max(x)-min(x)).reset_index()
     avg.columns = ['visitor_ip','session_number','average_time_per_session_per_user']
     
     #Calculating overall average session time (Comes out to be 1481 seconds ~ 25 mins)
     
-    overall_average_session_time = avg.groupby('visitor_ip')                         .agg({'average_time_per_session_per_user' : np.mean})['average_time_per_session_per_user'].mean()
+    overall_average_session_time = avg.groupby('visitor_ip') \
+                                  .agg({'average_time_per_session_per_user' : np.mean})['average_time_per_session_per_user'].mean()
     return overall_average_session_time,avg
 
 
@@ -101,7 +107,9 @@ def get_unique_urls_per_session(df):
     #unique url session numbers: 1. Apply groupby to get unique destination_ip per user per session
 #                            2. Perform a count and again groupby to get count of unique urls visited per session
 
-    unique_urls_per_session = df                                 .groupby(['visitor_ip','session_number','destination_ip']).count()                                 .reset_index().groupby(['visitor_ip','session_number'])                                 .count('destination_ip').reset_index()
+    unique_urls_per_session = df.groupby(['visitor_ip','session_number','destination_ip']).count() \
+                                                                                        .reset_index().groupby(['visitor_ip','session_number']) \
+                                                                                        .count('destination_ip').reset_index()
     #Renaming and dropping extra columns
     unique_urls_per_session.columns = ['visitor_ip','session_number','unique_url','timestamp']
     unique_urls_per_session = unique_urls_per_session.drop('timestamp',axis=1)
