@@ -1,7 +1,9 @@
 There two ways of viewing the solution:
 1. Open the web_log_challenge.ipynb file to view code and results together (Recommended)
 2. You can also use spark-submit by running the web_log_challenge.py.(Job completes in under 4 mins) 
-3. Results for most_engaged_users and unique_urls_per_session are attached separately in csv format
+  i. When running spark submit please change the input path of the 2015_07_22_mktplace_shop_web_log_sample.log file to 
+  match your system on line 133 of the web_log_challenge.py
+3. Results for most_engaged_users and unique_urls_per_session are attached separately in csv format. The csvs are also generated once the code successfully runs.
 4. Result of average session time was calculated to be 1480.90984195 seconds
 5. The window time for each session was chosen to be 15 mins=900 seconds.
 6. The code instructions said we could use any extra libraries therefore I have used pandas and numpy for this task. Make sure these 
